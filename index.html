@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Amazon India new features prototype · DPM Group 4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#dfe3e3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#0f1111;-webkit-tap-highlight-color:transparent}
+#app{max-width:430px;margin:0 auto;min-height:100vh;background:#f2f3f3;position:relative;display:flex;flex-direction:column}
+@media(min-width:520px){#app{margin:24px auto;min-height:860px;border-radius:28px;overflow:hidden;border:10px solid #111;box-shadow:0 10px 40px rgba(0,0,0,.25)}}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea{font:inherit}
+.task{position:sticky;top:0;z-index:20;background:#232f3e;color:#fff;padding:10px 14px;display:flex;gap:10px;align-items:center;font-size:13px;line-height:1.35}
+.task .tt{flex:1}
+.task b{color:#febd69}
+.task .stuck{background:#fff;color:#232f3e;border-radius:14px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+.task.done{background:#067d62}
+.task.done b{color:#fff}
+.task .next{background:#ffd814;color:#0f1111;border-radius:14px;padding:7px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+.hdr{background:#131921;color:#fff;padding:14px 14px;display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600}
+.hdr .bk{font-size:22px;line-height:1;padding:0 4px;color:#fff}
+.agent .hdr{background:#0f6e62}
+.search{background:#131921;padding:10px 12px}
+.search div{background:#fff;border-radius:8px;padding:10px 12px;color:#565959;font-size:15px}
+.body{flex:1;padding:12px 12px 24px}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e3e6e6}
+.h2{font-size:18px;font-weight:700;margin-bottom:8px}
+.h3{font-size:15px;font-weight:700}
+.mut{color:#565959;font-size:13px}
+.sm{font-size:13px}
+.row{display:flex;gap:12px;align-items:center}
+.sp{flex:1}
+.btn{display:block;width:100%;border-radius:22px;padding:12px;font-weight:600;font-size:15px;text-align:center;margin-top:10px}
+.y{background:#ffd814;border:1px solid #fcd200}
+.o{background:#ffa41c;border:1px solid #ff8f00}
+.w{background:#fff;border:1px solid #d5d9d9}
+.g{background:#0f6e62;color:#fff}
+.btn:disabled{opacity:.45}
+.link{color:#007185;font-weight:600;font-size:14px}
+.pill{display:inline-block;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:700}
+.p-amber{background:#fff4e0;color:#b45309;border:1px solid #f5c26b}
+.p-green{background:#e6f4ef;color:#067d62;border:1px solid #9fd6c4}
+.p-red{background:#fdecec;color:#b12704;border:1px solid #f3b3a5}
+.strike{text-decoration:line-through;color:#8a8d8d}
+.amber{color:#b45309;font-weight:700}
+.red{color:#b12704;font-weight:700}
+.green{color:#067d62;font-weight:700}
+.note{border-left:4px solid #f08804;background:#fff8ee;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:12px;font-size:14px;line-height:1.45}
+.note.gr{border-left-color:#067d62;background:#eef8f4}
+.tl{position:relative;padding-left:26px;margin-top:6px}
+.tl .st{position:relative;padding-bottom:16px}
+.tl .st:before{content:"";position:absolute;left:-20px;top:3px;width:12px;height:12px;border-radius:50%;background:#067d62}
+.tl .st:after{content:"";position:absolute;left:-15px;top:17px;width:2px;bottom:-1px;background:#067d62}
+.tl .st:last-child:after{display:none}
+.tl .st.cur:before{background:#fff;border:3px solid #f08804;width:14px;height:14px;left:-21px}
+.tl .st.cur:after{background:#d5d9d9}
+.tl .st.fut:before{background:#d5d9d9}
+.tl .st.fut:after{background:#d5d9d9}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chip{border:1px solid #d5d9d9;border-radius:18px;padding:8px 13px;font-size:14px;background:#fff}
+.chip.on{border:2px solid #007185;background:#e7f4f5;color:#007185;font-weight:700;padding:7px 12px}
+.opt{display:flex;gap:10px;align-items:center;border:1px solid #d5d9d9;border-radius:10px;padding:12px;margin-top:8px;background:#fff;font-size:15px;width:100%;text-align:left}
+.opt .rd{width:18px;height:18px;border-radius:50%;border:2px solid #8a8d8d;flex:none}
+.opt.on{border-color:#007185;background:#f2fafb}
+.opt.on .rd{border:6px solid #007185}
+.err{color:#b12704;font-size:13px;margin-top:8px;display:none}
+.err.show{display:block}
+.nav{position:sticky;bottom:0;margin-top:auto;background:#fff;border-top:1px solid #e3e6e6;display:flex;padding:8px 0 10px}
+.nav button{flex:1;font-size:12px;color:#565959;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button.on{color:#007185;font-weight:700}
+.nav svg{width:22px;height:22px}
+.thumb{width:72px;height:72px;border-radius:10px;background:#eef1f1;display:flex;align-items:center;justify-content:center;flex:none}
+.stars{color:#f08804;letter-spacing:1px}
+.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}
+.bar .tr{flex:1;height:10px;background:#e3e6e6;border-radius:5px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:#ffa41c}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#232f3e;color:#fff;padding:9px 14px;border-radius:18px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:50}
+.toast.show{opacity:.95}
+.badge{display:flex;gap:10px;align-items:flex-start;background:#eef8f4;border:1px solid #9fd6c4;border-radius:10px;padding:10px 12px;margin-top:10px}
+.seq{display:flex;gap:6px;margin-top:8px}
+.seq button{flex:1;border:1px solid #d5d9d9;border-radius:8px;padding:10px 0;font-weight:700;background:#fff}
+.seq button.on{background:#007185;color:#fff;border-color:#007185}
+.lbls{display:flex;justify-content:space-between;font-size:11px;color:#565959;margin-top:4px}
+textarea,input.tx{width:100%;border:1px solid #a6a6a6;border-radius:8px;padding:10px;font-size:15px;margin-top:6px;background:#fff}
+.photo{border:2px dashed #a6a6a6;border-radius:10px;height:110px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#565959;font-size:13px;background:#fafafa;width:100%}
+.photo.ok{border:2px solid #067d62;background:#eef8f4;color:#067d62;font-weight:700}
+.sc{display:block;width:100%;text-align:left;background:#fff;border:1px solid #d5d9d9;border-radius:12px;padding:14px;margin-bottom:10px}
+.sc .lt{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#232f3e;color:#febd69;align-items:center;justify-content:center;font-weight:700;margin-right:8px}
+.sc.dn{border-color:#9fd6c4;background:#f3fbf8}
+pre{white-space:pre-wrap;font-size:12px;background:#fff;border:1px solid #d5d9d9;border-radius:8px;padding:10px;max-height:300px;overflow:auto}
+.center{text-align:center}
+.big{font-size:28px;font-weight:800}
+.proto-tag{font-size:11px;color:#8a8d8d;text-align:center;margin-top:16px}
+.pbar{position:sticky;top:0;z-index:30;background:#232f3e;color:#fff;display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:13px}
+.pbar .all{background:#febd69;color:#131921;border-radius:14px;padding:6px 11px;font-weight:700;font-size:13px;white-space:nowrap}
+.pbar .fl{flex:1;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcard{display:block;width:100%;text-align:left;background:#fff;border:1px solid #d5d9d9;border-radius:12px;padding:14px;margin-bottom:10px}
+.fnum{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#232f3e;color:#febd69;align-items:center;justify-content:center;font-weight:700;margin-right:8px;flex:none}
+.sub{display:flex;gap:8px;margin-top:10px}
+.sub button{flex:1;border:1px solid #d5d9d9;border-radius:18px;padding:8px;font-size:13px;font-weight:600;background:#f7f8f8}
+.map{position:relative;height:190px;border-radius:10px;overflow:hidden;background:#e8eef0}
+.vpill{display:inline-block;background:#eef1f1;border-radius:5px;padding:2px 7px;font-size:11px;color:#37475a;margin-right:4px}
+.lt3{background:#e6f4ef;color:#067d62}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const IC={
+jar:'<svg width="54" height="54" viewBox="0 0 54 54"><rect x="12" y="6" width="30" height="8" rx="3" fill="#2b4a7a"/><rect x="10" y="13" width="34" height="36" rx="6" fill="#3a6db0"/><rect x="16" y="24" width="22" height="12" rx="3" fill="#fff"/><text x="27" y="33" font-size="7" font-weight="700" fill="#3a6db0" text-anchor="middle">POD</text></svg>',
+wm:'<svg width="54" height="54" viewBox="0 0 54 54"><rect x="9" y="6" width="36" height="42" rx="4" fill="#e9ecef" stroke="#adb5bd"/><rect x="9" y="6" width="36" height="8" rx="3" fill="#ced4da"/><circle cx="27" cy="31" r="11" fill="#fff" stroke="#868e96" stroke-width="2"/><circle cx="27" cy="31" r="6" fill="#a5d8ff"/><circle cx="38" cy="10" r="1.6" fill="#495057"/></svg>',
+phone:'<svg width="54" height="54" viewBox="0 0 54 54"><rect x="16" y="4" width="22" height="46" rx="5" fill="#1f2a44"/><rect x="18" y="7" width="18" height="40" rx="3" fill="#7b6cf0"/></svg>',
+purifier:'<svg width="54" height="54" viewBox="0 0 54 54"><rect x="15" y="6" width="24" height="42" rx="8" fill="#f1f3f5" stroke="#adb5bd"/><path d="M19 16h16M19 21h16M19 26h16M19 31h16" stroke="#adb5bd"/><circle cx="27" cy="40" r="3" fill="#69db7c"/></svg>',
+watch:'<svg width="120" height="150" viewBox="0 0 120 150"><rect x="42" y="2" width="36" height="40" rx="6" fill="#495057"/><rect x="42" y="108" width="36" height="40" rx="6" fill="#495057"/><rect x="28" y="35" width="64" height="80" rx="16" fill="#212529"/><rect x="34" y="41" width="52" height="68" rx="11" fill="#1c7ed6"/><text x="60" y="72" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">10:09</text><text x="60" y="90" font-size="9" fill="#d0ebff" text-anchor="middle">8,240 steps</text></svg>',
+watchS:'<svg width="54" height="54" viewBox="0 0 120 150"><rect x="42" y="2" width="36" height="40" rx="6" fill="#495057"/><rect x="42" y="108" width="36" height="40" rx="6" fill="#495057"/><rect x="28" y="35" width="64" height="80" rx="16" fill="#212529"/><rect x="34" y="41" width="52" height="68" rx="11" fill="#1c7ed6"/></svg>',
+kurta:c=>`<svg width="150" height="190" viewBox="0 0 150 190"><path d="M50 10 L62 6 Q75 22 88 6 L100 10 L132 34 L120 64 L106 56 L108 182 L42 182 L44 56 L30 64 L18 34 Z" fill="${c}"/><path d="M62 6 Q75 22 88 6 L84 30 Q75 40 66 30 Z" fill="rgba(0,0,0,.12)"/><path d="M75 30 V96" stroke="rgba(255,255,255,.5)" stroke-width="2"/>${[44,58,72,86].map(y=>`<circle cx="75" cy="${y}" r="2" fill="rgba(255,255,255,.7)"/>`).join('')}</svg>`,
+home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+you:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.5 11h11L21 7H6.2"/><circle cx="9" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/></svg>',
+menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+door:'<svg width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice"><rect width="300" height="150" fill="#cfd8dc"/><rect x="170" y="20" width="120" height="70" rx="4" fill="#90a4ae"/><text x="230" y="60" font-size="12" fill="#eceff1" text-anchor="middle">SECURITY</text><rect x="0" y="118" width="300" height="32" fill="#b0bec5"/><rect x="60" y="80" width="70" height="44" rx="3" fill="#c49a6c"/><rect x="60" y="80" width="70" height="9" fill="#a97f4f"/><rect x="200" y="96" width="36" height="28" rx="2" fill="#c49a6c"/></svg>'
+};
+const FLOWS={
+delivery:{n:1,name:'Delivery Promise',sub:'On-time % before you buy · delivery photo · automatic credit if late',start:'d-product'},
+photo:{n:2,name:'True Colour Photo',sub:'Amazon’s own unedited photo of the actual item',start:'p-product'},
+care:{n:3,name:'Product Care Dashboard',sub:'Warranty, service booking, manuals and just-the-part orders',start:'c-orders'},
+household:{n:4,name:'Household Hub',sub:'Shared budget, duplicate alerts and approvals',start:'h-hub'},
+gifting:{n:5,name:'Group Gifting',sub:'Friends chip in for one gift through a shared link',start:'g-product'}
+};
+const S={screen:'menu',flow:null,hist:[]};
+let D;function resetD(){D={ptab:'seller',psize:'M',choice:null,day:null,slot:null,list:[['Basmati rice 5 kg','Meera',false],['Dish wash liquid','Riya',true]],req:{arjun:null,mom:null},spent:6240,gAmt:1000,gAny:true,gPriv:true,gName:'Sneha',gDate:'Sun 23 Nov',paid:false}}
+resetD();
+const $=s=>document.querySelector(s);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const rs=n=>'₹'+n.toLocaleString('en-IN');
+function nav(a){return '<div class="nav">'+[['home','Home'],['you','You'],['cart','Cart'],['menu','Menu']].map(([k,l])=>`<button data-miss="1" class="${k===a?'on':''}">${IC[k]}<span>${l}</span></button>`).join('')+'</div>'}
+function hdr(t){return `<div class="hdr"><button class="bk" data-back="1" aria-label="Back">‹</button><span>${t}</span></div>`}
+function srch(t){return `<div class="search" style="display:flex;align-items:center;gap:8px"><button class="bk" data-back="1" aria-label="Back" style="color:#fff;font-size:26px;line-height:1;padding:0 4px">‹</button><div style="flex:1">🔍 ${t}</div></div>`}
+function pbar(){const f=FLOWS[S.flow];return `<div class="pbar"><button class="all" data-menu="1">‹ All features</button><span class="fl">${f.n}. ${f.name}</span></div>`}
+const shortcut=(go,label)=>`<button class="btn w" data-go="${go}" style="border-style:dashed;color:#565959">⏩ ${label} <span style="font-size:11px">(prototype shortcut)</span></button>`;
+const V={};
+V.menu=()=>`<div class="hdr"><span>Amazon India · new features prototype</span></div><div class="body">
+<div class="card"><div class="h2">Five new features</div><p class="sm" style="line-height:1.5">Tap a feature to walk through it. Every screen has a <b>back</b> arrow and an <b>All features</b> button to return here. Sample data only: nothing is ordered, paid or sent.</p></div>
+${Object.entries(FLOWS).map(([k,f])=>`<button class="fcard" data-flow="${k}"><div class="row" style="align-items:flex-start"><span class="fnum">${f.n}</span><div><b>${f.name}</b><div class="mut" style="margin-top:3px">${f.sub}</div></div></div></button>`).join('')}
+<p class="proto-tag">Prototype for IIM Bangalore DPM course · Group 4 · not the real app</p></div>`;
+
+/* 1 Delivery Promise */
+V['d-product']=()=>`${srch('protein powder')}<div class="body">
+<div class="card"><div class="row"><div class="thumb" style="width:90px;height:90px">${IC.jar}</div><div><div class="h3">Pod Protein Powder, Chocolate, 1 kg</div><div class="row" style="margin-top:4px"><span class="stars">★★★★☆</span><span class="mut">4.3 · 8,112</span></div><div class="big" style="font-size:22px;margin-top:6px">₹2,199</div></div></div></div>
+<div class="card"><div class="sm">FREE delivery <b>Saturday, 22 Nov</b></div>
+<div class="badge" style="margin-top:10px"><span style="font-size:20px">⏱</span><div class="sp"><b class="green">On time 92% of the time</b><div class="mut" style="margin-top:2px">For orders like this to <b>560034</b> in the last 30 days.</div><div style="height:8px;background:#d3eadf;border-radius:4px;margin-top:8px;overflow:hidden"><i style="display:block;width:92%;height:100%;background:#067d62"></i></div><span class="link" data-go="d-how" style="display:inline-block;margin-top:8px">How is this worked out?</span></div></div>
+<div class="note gr" style="margin:10px 0 0">🛡 <b>Delivery Promise:</b> if this arrives after 22 Nov, ₹20 is added to your wallet automatically.</div>
+<button class="btn y" data-go="d-placed">Buy now</button><button class="btn w" data-miss="1">Add to cart</button></div>
+</div>${nav('home')}`;
+V['d-how']=()=>`${hdr('How the on-time score works')}<div class="body">
+<div class="card"><div class="big" style="font-size:30px">92%</div><div class="mut">of 1,240 similar orders to 560034 arrived on or before the promised date in the last 30 days</div></div>
+<div class="card"><div class="h3">When orders were late, why?</div>
+${[['Weather at a sorting hub','5%'],['Hub backlog during sales','2%'],['Address not found','1%']].map(([a,b])=>`<div class="row" style="padding:8px 0;border-bottom:1px solid #eef0f0"><span class="sp sm">${a}</span><b>${b}</b></div>`).join('')}</div>
+<div class="card"><p class="sm" style="line-height:1.5">“Similar orders” means the same seller, the same warehouse and the same delivery speed. The score updates every day.</p></div>
+<button class="btn y" data-back="1">Back to product</button></div>${nav('home')}`;
+V['d-placed']=()=>`${hdr('Order placed')}<div class="body"><div class="card center" style="padding:24px"><div style="font-size:34px">✓</div><div class="h2">Order placed</div><div class="mut">Arriving Saturday, 22 Nov</div><div class="pill p-green" style="margin-top:10px">🛡 Covered by Delivery Promise</div></div>
+${shortcut('d-orders','Jump to 2 days after the promised date')}</div>${nav('you')}`;
+V['d-orders']=()=>`${srch('Search orders')}<div class="body"><div class="h2" style="font-size:22px">Your Orders</div>
+<div class="card" data-go="d-details"><div class="row"><div class="thumb">${IC.jar}</div><div class="sp"><div class="green">Delivered Mon, 24 Nov</div><div class="h3">Pod Protein Powder</div><div class="mut">2 days after the promised date</div><span class="pill p-green" style="margin-top:6px">₹20 credit added</span></div><span style="font-size:24px;color:#8a8d8d">›</span></div></div>
+</div>${nav('you')}`;
+V['d-details']=()=>`${hdr('Order details')}<div class="body">
+<div class="card"><div class="row"><div class="thumb">${IC.jar}</div><div><div class="h3">Pod Protein Powder</div><div class="mut">Order #408-2231907</div></div></div>
+<div class="row" style="margin-top:12px"><span class="mut sp">Promised</span><b>Sat, 22 Nov</b></div><div class="row" style="margin-top:6px"><span class="mut sp">Delivered</span><span class="red">Mon, 24 Nov · 2 days late</span></div></div>
+<div class="note"><b>Why it was late:</b> heavy rain at the Delhi sorting hub held parcels for 2 days.</div>
+<div class="card" style="background:#eef8f4;border-color:#9fd6c4"><div class="row"><span style="font-size:24px">🛡</span><div class="sp"><b class="green">₹20 Late Delivery Credit added</b><div class="mut">Added to your wallet automatically. No need to ask.</div></div></div><button class="btn w" data-go="d-wallet">See wallet</button></div>
+<div class="card"><div class="row"><div class="h3 sp">Delivery photo</div><span class="pill p-green">✓ Left with security</span></div><div style="border-radius:10px;overflow:hidden;margin-top:10px">${IC.door}</div><div class="mut" style="margin-top:6px">Taken by the delivery agent · 24 Nov, 6:42 PM · at your address</div></div>
+</div>${nav('you')}`;
+V['d-wallet']=()=>`${hdr('Wallet')}<div class="body"><div class="card"><div class="mut">Balance</div><div class="big">₹20</div><div class="mut">Used automatically at your next checkout · valid 90 days</div></div>
+<div class="card"><div class="h3">Recent</div><div class="row" style="margin-top:8px"><div class="sp"><div class="sm">Late Delivery Credit</div><div class="mut">Order #408-2231907 · 24 Nov</div></div><b class="green">+₹20</b></div></div>
+<button class="btn y" data-menu="1">Back to all features</button></div>${nav('you')}`;
+
+/* 2 True Colour Photo */
+V['p-product']=()=>{const a=D.ptab==='amazon';return `${srch('teal kurta')}<div class="body">
+<div class="card"><div class="sm">Cotton Straight Kurta for Women, Teal</div><div class="row" style="margin-top:4px"><span class="stars">★★★★☆</span><span class="mut">4.0 · 3,206</span></div>
+<div class="chips" style="margin-top:10px"><button class="chip ${a?'':'on'}" data-ptab="seller">Seller photos (4)</button><button class="chip ${a?'on':''}" data-ptab="amazon">📷 Amazon photo</button></div>
+<div class="center" style="background:${a?'#ecebe6':'#f7fbfb'};border-radius:10px;margin-top:10px;padding:14px 0;position:relative">${IC.kurta(a?'#3f7f7a':'#00b3a7')}
+${a?'<div style="position:absolute;left:8px;bottom:8px;background:rgba(35,47,62,.85);color:#fff;font-size:11px;border-radius:6px;padding:4px 8px;text-align:left">Taken by Amazon · Bengaluru warehouse · 12 Nov<br>Unedited · standard daylight</div>':'<div style="position:absolute;left:8px;bottom:8px;background:rgba(255,255,255,.9);font-size:11px;border-radius:6px;padding:4px 8px">Photo by seller</div>'}</div>
+${a?'':'<div class="badge" style="background:#eef4fb;border-color:#b5d4f4" data-ptab="amazon"><span style="font-size:18px">📷</span><div class="sp"><b style="color:#0c447c">See the real colour</b><div class="mut">Amazon photographed this exact item when it reached the warehouse.</div></div></div>'}
+<button class="btn w" data-go="p-compare">Compare side by side</button></div>
+<div class="card"><div class="h3">Size</div><div class="chips">${['S','M','L','XL'].map(s=>`<button class="chip ${D.psize===s?'on':''}" data-psize="${s}">${s}</button>`).join('')}</div>
+<div class="row" style="margin-top:14px;align-items:baseline"><span class="big">₹899</span><span class="strike">₹1,499</span></div>
+<button class="btn y" data-act="pcart">Add to cart</button><button class="btn w" data-act="pnot">Not for me</button></div>
+</div>${nav('home')}`};
+V['p-compare']=()=>`${hdr('Seller photo vs Amazon photo')}<div class="body">
+<div class="row" style="align-items:stretch">${[['Seller photo','#00b3a7','#f7fbfb','Edited for the listing'],['Amazon photo','#3f7f7a','#ecebe6','Actual item, unedited']].map(([t,c,bg,s])=>`<div class="card sp" style="padding:10px;margin:0"><div class="h3">${t}</div><div class="center" style="background:${bg};border-radius:8px;margin-top:6px">${IC.kurta(c).replace('width="150" height="190"','width="100%" height="150"')}</div><div class="mut" style="margin-top:6px">${s}</div></div>`).join('')}</div>
+<div class="card" style="margin-top:12px"><div class="h3">How Amazon takes these photos</div><p class="sm" style="margin-top:4px;line-height:1.5">One item from each new batch is photographed at the warehouse under the same daylight lamp, with no filters or editing. If the colour changes in a later batch, the photo is updated.</p></div>
+<button class="btn y" data-back="1">Back to product</button></div>${nav('home')}`;
+V['p-decided']=()=>`${hdr('')}<div class="body"><div class="card center" style="padding:26px">${D.choice==='cart'?'<div style="font-size:34px">✓</div><div class="h2">Added to cart</div><div class="mut">Cotton Straight Kurta, Teal · Size '+D.psize+' · ₹899</div>':'<div class="h2">No problem</div><div class="mut">We won’t add it to your cart.</div>'}<button class="btn w" data-back="1">Back to product</button></div></div>${nav('cart')}`;
+
+/* 3 Product Care Dashboard */
+V['c-orders']=()=>`${srch('Search orders')}<div class="body"><div class="h2" style="font-size:22px">Your Orders</div>
+<div class="chips" style="margin-bottom:12px"><span class="chip" data-miss="1">Orders</span><button class="chip on" data-go="c-products">Your products <span class="pill p-amber" style="padding:1px 6px;margin-left:4px">New</span></button><span class="chip" data-miss="1">Buy Again</span></div>
+<div class="card" data-go="c-products" style="background:#fff8ee;border-color:#f5c26b"><div class="row"><span style="font-size:24px">🛠</span><div class="sp"><b>Look after what you’ve bought</b><div class="mut">Warranty, service and parts for 3 of your products</div></div><span style="font-size:24px;color:#8a8d8d">›</span></div></div>
+<div class="card" data-miss="1"><div class="row"><div class="thumb">${IC.jar}</div><div><div class="mut">Delivered 24 Nov</div><div class="h3">Pod Protein Powder</div></div></div></div>
+</div>${nav('you')}`;
+V['c-products']=()=>`${hdr('Your products')}<div class="body">
+${[['c-wm',IC.wm,'LG 7 kg Front Load Washing Machine','Bought 15 Dec 2025','⚠ Warranty ends in 28 days','p-amber'],[null,IC.phone,'Samsung Galaxy S25','Bought 3 Feb 2026','Warranty till Feb 2027','p-green'],[null,IC.purifier,'Philips Air Purifier','Bought 10 Aug 2026','Filter change due in 5 days','p-amber']].map(([g,i,n,b,s,c])=>`<div class="card" ${g?`data-go="${g}"`:'data-miss="1"'}><div class="row"><div class="thumb">${i}</div><div class="sp"><div class="h3">${n}</div><div class="mut">${b}</div><span class="pill ${c}" style="margin-top:6px">${s}</span></div><span style="font-size:24px;color:#8a8d8d">›</span></div></div>`).join('')}
+</div>${nav('you')}`;
+V['c-wm']=()=>`${hdr('Product care')}<div class="body">
+<div class="card"><div class="row"><div class="thumb">${IC.wm}</div><div><div class="h3">LG 7 kg Front Load Washing Machine</div><div class="mut">Model FHM1207 · bought 15 Dec 2025</div></div></div></div>
+<div class="card" style="background:#fff8ee;border-color:#f5c26b"><div class="row"><div class="sp"><div class="mut">Manufacturer warranty</div><b class="amber">Ends 15 Dec 2026 · 28 days left</b></div><span class="link" data-miss="1">Extend</span></div><div class="mut" style="margin-top:6px">Repairs before this date are free.</div></div>
+<div class="card"><div class="h3">Something wrong?</div><div class="chips">${['Leaking','Not spinning','Loud noise','Won’t start'].map(x=>`<button class="chip" ${x==='Leaking'?'data-go="c-issue"':'data-miss="1"'}>${x}</button>`).join('')}</div></div>
+<div class="card"><div class="h3">Care</div>
+${[['🔧','Book a service visit','c-book'],['🧩','Order a part for this model','c-part'],['📘','Manual, bill and warranty card','c-docs']].map(([i,t,g])=>`<div class="row" data-go="${g}" style="padding:11px 0;border-bottom:1px solid #eef0f0;cursor:pointer"><span style="font-size:20px">${i}</span><span class="sp sm">${t}</span><span style="color:#8a8d8d">›</span></div>`).join('')}
+<div class="row" style="padding:11px 0"><span style="font-size:20px">⏰</span><span class="sp sm">Drum clean due in 6 days</span><span class="link" data-miss="1">Remind me</span></div></div>
+</div>${nav('you')}`;
+V['c-issue']=()=>`${hdr('Leaking')}<div class="body">
+<div class="card"><div class="h3">Leaking from the back or bottom?</div><p class="sm" style="margin-top:6px;line-height:1.5">On this model, that’s usually a cracked drain hose. It’s a 10-minute fix, or a technician can do it for free while you’re under warranty.</p></div>
+<div class="card"><div class="row"><span style="font-size:24px">🧩</span><div class="sp"><b>Order just the drain hose</b><div class="mut">₹349 · fits your FHM1207 ✓ · arrives tomorrow</div></div></div><button class="btn y" data-go="c-part">Order the part</button></div>
+<div class="card"><div class="row"><span style="font-size:24px">🔧</span><div class="sp"><b>Book a technician visit</b><div class="mut">Free · under warranty for 28 more days</div></div></div><button class="btn w" data-go="c-book">Book a visit</button></div>
+<div class="card" style="background:#eef8f4;border-color:#9fd6c4"><div class="h3">Repair or replace?</div><p class="sm" style="margin-top:4px">Your machine is 11 months old. A repair (free now, about ₹600–1,200 later) costs far less than a new one (₹32,000). <b>We suggest repair.</b></p></div>
+</div>${nav('you')}`;
+V['c-book']=()=>{const days=['Thu 20 Nov','Fri 21 Nov','Sat 22 Nov'];const slots=['9 AM – 12 PM','12 – 3 PM','3 – 6 PM'];return `${hdr('Book a service visit')}<div class="body">
+<div class="card"><div class="row"><div class="thumb">${IC.wm}</div><div><div class="h3">LG washing machine</div><div class="green sm">Free · under warranty</div></div></div></div>
+<div class="card"><div class="h3">What’s the problem?</div><div class="chips"><span class="chip on">Leaking</span></div>
+<div class="h3" style="margin-top:12px">Pick a day</div><div class="chips">${days.map(d=>`<button class="chip ${D.day===d?'on':''}" data-day="${d}">${d}</button>`).join('')}</div>
+<div class="h3" style="margin-top:12px">Pick a time</div><div class="chips">${slots.map(s=>`<button class="chip ${D.slot===s?'on':''}" data-slot="${s}">${s}</button>`).join('')}</div>
+<div class="err" id="berr">Pick a day and a time.</div></div>
+<button class="btn y" data-act="book">Confirm visit</button></div>${nav('you')}`};
+V['c-booked']=()=>`${hdr('Visit booked')}<div class="body"><div class="card center" style="padding:24px"><div style="font-size:34px">✓</div><div class="h2">Technician visit booked</div><div class="mut">${esc(D.day||'')} · ${esc(D.slot||'')}</div><div class="pill p-green" style="margin-top:10px">Free under warranty</div><p class="sm" style="margin-top:10px">The technician will call 30 minutes before. You can track the visit on this product’s care page.</p><button class="btn w" data-act="tocare">Back to product care</button></div></div>${nav('you')}`;
+V['c-part']=()=>`${hdr('Parts for your model')}<div class="body">
+<div class="card"><div class="row"><span style="font-size:30px">🧩</span><div class="sp"><div class="h3">Drain hose, 1.5 m</div><div class="green sm">✓ Fits your LG FHM1207</div><div class="big" style="font-size:22px;margin-top:4px">₹349</div><div class="mut">Arrives tomorrow</div></div></div>
+<div class="card" style="margin:10px 0 0;background:#f7f8f8;border:0"><div class="sm">▶ How to fit it (2 min video)</div></div>
+<button class="btn y" data-go="c-partdone">Buy now</button></div>
+<div class="card"><div class="h3">Other parts for this model</div>${[['Inlet filter','₹149'],['Door gasket','₹899'],['Drain pump','₹1,450']].map(([a,b])=>`<div class="row" data-miss="1" style="padding:8px 0;border-bottom:1px solid #eef0f0"><span class="sp sm">${a}</span><b>${b}</b></div>`).join('')}</div>
+</div>${nav('you')}`;
+V['c-partdone']=()=>`${hdr('')}<div class="body"><div class="card center" style="padding:24px"><div style="font-size:34px">✓</div><div class="h2">Drain hose ordered</div><div class="mut">Arriving tomorrow · ₹349</div><p class="sm" style="margin-top:8px">We’ll add the fitting video to your product care page.</p><button class="btn w" data-act="tocare">Back to product care</button></div></div>${nav('you')}`;
+V['c-docs']=()=>`${hdr('Manual and documents')}<div class="body"><div class="card">${[['📘','User manual (PDF)'],['🧾','Bill / invoice'],['🛡','Warranty card']].map(([i,t])=>`<div class="row" data-miss="1" style="padding:12px 0;border-bottom:1px solid #eef0f0"><span style="font-size:20px">${i}</span><span class="sp sm">${t}</span><span class="link">Open</span></div>`).join('')}</div><button class="btn y" data-back="1">Back</button></div>${nav('you')}`;
+
+/* 4 Household Hub */
+const MEM=[['You','#37475a'],['Riya','#c2255c'],['Arjun','#1971c2'],['Meera','#2f9e44']];
+V['h-hub']=()=>{const pct=Math.min(100,Math.round(D.spent/100));const pend=Object.values(D.req).filter(v=>v===null).length;return `${hdr('Household Hub')}<div class="body">
+<div class="card"><div class="row"><div class="sp"><div class="h2" style="margin:0">Flat 302</div><div class="mut">4 members · shared card ••••4821</div></div><div class="row" style="gap:-6px">${MEM.map(([n,c])=>`<div title="${n}" style="width:30px;height:30px;border-radius:50%;background:${c};color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;margin-left:-8px">${n[0]}</div>`).join('')}</div></div></div>
+<div class="card"><div class="row"><span class="sp h3">November budget</span><b>${rs(D.spent)} / ₹10,000</b></div><div style="height:10px;background:#e3e6e6;border-radius:5px;margin-top:8px;overflow:hidden"><i style="display:block;width:${pct}%;height:100%;background:${pct>=100?'#b12704':pct>80?'#f08804':'#067d62'}"></i></div><div class="mut" style="margin-top:6px">${D.spent>10000?'Over budget by '+rs(D.spent-10000):rs(10000-D.spent)+' left · resets 1 Dec'}</div></div>
+<div class="card"><div class="row"><span class="sp h3">Waiting for your approval</span>${pend?`<span class="pill p-amber">${pend}</span>`:''}</div>
+${[['arjun','Arjun','Air fryer, 4.2 L','₹4,999','Flat'],['mom','Mom','BP monitor','₹1,899','Parents']].map(([k,n,item,p,tag])=>{const v=D.req[k];return `<div class="row" ${v===null?`data-req="${k}"`:''} style="padding:10px 0;border-bottom:1px solid #eef0f0;cursor:pointer"><div class="sp"><b>${n}</b> <span class="vpill">${tag}</span><div class="sm">${item} · ${p}</div></div>${v===null?'<span class="link">Review ›</span>':`<span class="pill ${v==='ok'?'p-green':'p-red'}">${v==='ok'?'Approved':'Declined'}</span>`}</div>`}).join('')}</div>
+<div class="card"><div class="h3">Shared list</div>
+${D.list.map(([t,who,done])=>`<div class="row" style="padding:8px 0;border-bottom:1px solid #eef0f0"><span>${done?'✅':'⬜'}</span><span class="sp sm" style="${done?'text-decoration:line-through;color:#8a8d8d':''}">${esc(t)}</span><span class="mut">${who}</span></div>`).join('')}
+<div class="mut" style="margin-top:10px">Add to list</div><div class="chips">${['Detergent','Milk','Toilet cleaner'].map(x=>`<button class="chip" data-add="${x}">+ ${x}</button>`).join('')}</div></div>
+<div class="card"><div class="h3">Recent orders by the house</div>${[['Riya','Surf Excel Matic 2 kg','15 Nov','Arriving tomorrow'],['Meera','Toor dal 2 kg','12 Nov','Delivered']].map(([w,i,d,s])=>`<div class="row" style="padding:8px 0;border-bottom:1px solid #eef0f0"><div class="sp"><div class="sm">${i}</div><div class="mut">${w} · ${d}</div></div><span class="mut">${s}</span></div>`).join('')}</div>
+</div>${nav('you')}`};
+V['h-dup']=()=>`${hdr('Already ordered?')}<div class="body">
+<div class="card" style="background:#fff8ee;border-color:#f5c26b"><div class="row"><span style="font-size:26px">👀</span><div class="sp"><b>Riya ordered detergent 2 days ago</b><div class="mut">Surf Excel Matic 2 kg · arriving tomorrow</div></div></div></div>
+<div class="card"><p class="sm">Do you still want to add detergent to the shared list?</p><button class="btn y" data-act="dupno">Don’t add, we’re covered</button><button class="btn w" data-act="dupyes">Add anyway</button></div>
+</div>${nav('you')}`;
+V['h-req']=()=>{const k=D.cur;const r=k==='arjun'?{n:'Arjun',item:'Air fryer, 4.2 L',p:4999,note:'We keep ordering takeaway. This pays for itself in a month 🙂',tag:'Flat'}:{n:'Mom',item:'Omron BP monitor',p:1899,note:'Doctor asked me to check daily.',tag:'Parents'};const mom=k==='mom';const cap=mom?3000:10000;const used=mom?800:D.spent;const left=cap-used;const over=r.p>left;return `${hdr('Purchase request')}<div class="body">
+<div class="card"><div class="row"><div style="width:40px;height:40px;border-radius:50%;background:${k==='arjun'?'#1971c2':'#e8590c'};color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center">${r.n[0]}</div><div class="sp"><b>${r.n}</b> wants to buy <span class="vpill">${r.tag}</span><div class="h3" style="margin-top:4px">${r.item}</div><div class="big" style="font-size:22px">${rs(r.p)}</div></div></div>
+<div class="note" style="margin:10px 0 0">“${r.note}”</div></div>
+<div class="card"><div class="h3">${mom?'Effect on Mom’s monthly limit (₹3,000)':'Effect on November budget'}</div><div class="mut" style="margin-top:4px">${left<0?'Already '+rs(-left)+' over':rs(left)+' left now'}</div>${over?`<div class="red" style="margin-top:4px">Approving puts ${mom?'Mom':'the house'} ${rs(r.p-left)} over budget</div>`:`<div class="green" style="margin-top:4px">Fits in the limit · ${rs(left-r.p)} left after</div>`}</div>
+<button class="btn y" data-act="approve">Approve and order</button><button class="btn w" data-act="decline">Decline</button><button class="btn w" data-miss="1">Ask a question</button></div>${nav('you')}`};
+
+/* 5 Group Gifting */
+V['g-product']=()=>`${srch('smartwatch')}<div class="body">
+<div class="card"><div class="sm">Noise ColorFit Pro 6 Smartwatch, AMOLED, Midnight Blue</div><div class="row" style="margin-top:4px"><span class="stars">★★★★☆</span><span class="mut">4.1 · 12,480</span></div>
+<div class="center" style="background:#f7f8f8;border-radius:10px;margin-top:10px;padding:10px 0">${IC.watch}</div>
+<div class="row" style="margin-top:12px;align-items:baseline"><span class="big">₹9,999</span><span class="strike">₹12,999</span></div>
+<button class="btn y" data-miss="1">Add to cart</button>
+<button class="btn o" data-go="g-setup">🎁 Gift with friends</button><div class="mut center" style="margin-top:6px">Friends chip in through a link. It’s ordered when the total is reached.</div></div>
+</div>${nav('home')}`;
+V['g-setup']=()=>`${hdr('Start a group gift')}<div class="body">
+<div class="card"><div class="row"><div class="thumb">${IC.watchS}</div><div><div class="h3">Noise ColorFit Pro 6</div><div class="mut">Target ₹9,999</div></div></div></div>
+<div class="card"><div class="h3">Who is it for?</div><input class="tx" id="gname" value="${esc(D.gName)}" placeholder="Friend’s name">
+<div class="h3" style="margin-top:12px">Deliver by</div><div class="chips">${['Sat 22 Nov','Sun 23 Nov','Mon 24 Nov'].map(d=>`<button class="chip ${D.gDate===d?'on':''}" data-gdate="${d}">${d}</button>`).join('')}</div>
+<div class="h3" style="margin-top:12px">How should friends chip in?</div>
+<button class="opt ${D.gAny?'on':''}" data-gany="1"><span class="rd"></span><span>Any amount they like</span></button>
+<button class="opt ${D.gAny?'':'on'}" data-gany="0"><span class="rd"></span><span>Split equally: 10 friends × ₹1,000</span></button>
+<button class="opt ${D.gPriv?'on':''}" data-gpriv="1" style="margin-top:12px"><span class="rd"></span><span>Hide how much each person gave<br><span class="mut">Everyone sees names, only you see amounts</span></span></button>
+<div class="err" id="gerr">Enter a name.</div></div>
+<div class="note gr">If the total isn’t reached by the delivery date, everyone gets their money back automatically.</div>
+<button class="btn y" data-act="gcreate">Create and pay my share (₹1,000)</button></div>${nav('home')}`;
+const prog=(paid,ppl)=>`<div class="row" style="margin-top:6px"><span class="sp h3">${rs(paid)} of ₹9,999</span><span class="mut">${ppl} ${ppl===1?'person':'people'}</span></div><div style="height:10px;background:#e3e6e6;border-radius:5px;margin-top:6px;overflow:hidden"><i style="display:block;width:${Math.min(100,paid/99.99)}%;height:100%;background:#ffa41c"></i></div>`;
+V['g-share']=()=>`${hdr('Group gift created')}<div class="body">
+<div class="card"><div class="h2" style="margin:0">🎁 ${esc(D.gName)}’s birthday gift</div><div class="mut">Noise ColorFit Pro 6 · deliver by ${D.gDate}</div>${prog(1000,1)}<div class="mut" style="margin-top:6px">You chipped in ₹1,000</div></div>
+<div class="card"><div class="h3">Invite friends</div><div class="row" style="margin-top:8px;background:#f7f8f8;border-radius:8px;padding:10px"><span class="sp sm">amzn.in/g/${esc(D.gName.toLowerCase().replace(/[^a-z]/g,''))||'gift'}-bday</span><button class="chip" data-act="gcopy">Copy</button></div>
+<button class="btn w" data-miss="1">Share on WhatsApp</button></div>
+${shortcut('g-invite','See what a friend sees when they open the link')}</div>${nav('home')}`;
+V['g-invite']=()=>`${hdr('You’re invited')}<div class="body">
+<div class="card"><div class="mut">Rohan invited you to chip in for</div><div class="h2" style="margin:2px 0">🎁 ${esc(D.gName)}’s birthday gift</div><div class="row"><div class="thumb">${IC.watchS}</div><div><div class="h3">Noise ColorFit Pro 6</div><div class="mut">Delivered on ${D.gDate}</div></div></div>${prog(6000,6)}<div class="mut" style="margin-top:6px">Rohan, Kavya, Ishaan, Tara, Dev and Ana have chipped in</div></div>
+<div class="card"><div class="h3">How much?</div><div class="chips">${[500,1000,1500,2000].map(a=>`<button class="chip ${D.gAmt===a?'on':''}" data-gamt="${a}">${rs(a)}</button>`).join('')}</div>
+<input class="tx" id="gmsg" placeholder="Add a message for the card (optional)"></div>
+<button class="btn y" data-act="gpay">Pay ${rs(D.gAmt)} with UPI</button>
+<div class="mut center" style="margin-top:6px">Refunded automatically if the total isn’t reached by ${D.gDate}</div></div>${nav('home')}`;
+V['g-paid']=()=>`${hdr('Thanks for chipping in')}<div class="body">
+<div class="card center" style="padding:20px"><div style="font-size:34px">✓</div><div class="h2">You chipped in ${rs(D.gAmt)}</div>${prog(6000+D.gAmt,7)}<div class="mut" style="margin-top:6px">${rs(Math.max(0,9999-6000-D.gAmt))} to go · 5 days left</div></div>
+${shortcut('g-done','Jump to when the target is reached')}</div>${nav('home')}`;
+V['g-done']=()=>`${hdr('Gift ordered')}<div class="body"><div class="card center" style="padding:24px"><div style="font-size:34px">🎉</div><div class="h2">Target reached</div><div class="mut">10 friends chipped in ₹9,999</div><p class="sm" style="margin-top:10px;line-height:1.5">The watch is ordered and will reach ${esc(D.gName)} on <b>${D.gDate}</b>, gift-wrapped with a card signed by all 10 of you.</p><button class="btn y" data-menu="1">Back to all features</button></div></div>${nav('home')}`;
+
+function render(){$('#app').innerHTML=(S.screen==='menu'?'':pbar())+V[S.screen]()+'<div class="toast" id="toast"></div>';window.scrollTo(0,0)}
+function toast(t){const e=$('#toast');if(!e)return;e.textContent=t;e.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('show'),1600)}
+function go(s){S.hist.push(S.screen);S.screen=s;render()}
+function back(){const s=S.hist.pop();if(!s||s==='menu'){toMenu();return}S.screen=s;render()}
+function toMenu(){S.flow=null;S.screen='menu';S.hist=[];setHash('');render()}
+function setHash(h){try{if(h)history.replaceState(null,'','#'+h);else history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
+function openFlow(k){resetD();S.flow=k;S.hist=['menu'];S.screen=FLOWS[k].start;setHash(k);render()}
+function err(id){const e=document.getElementById(id);if(e)e.classList.add('show')}
+document.addEventListener('input',e=>{if(e.target.id==='gname')D.gName=e.target.value});
+document.addEventListener('click',e=>{const el=e.target.closest('[data-flow],[data-menu],[data-act],[data-go],[data-back],[data-miss],[data-ptab],[data-psize],[data-day],[data-slot],[data-add],[data-req],[data-gdate],[data-gany],[data-gpriv],[data-gamt]');
+ if(!el)return;const d=el.dataset;
+ if(d.flow){openFlow(d.flow);return}
+ if(d.menu){toMenu();return}
+ if(d.back){back();return}
+ if(d.go){go(d.go);return}
+ if(d.miss&&!d.act){toast('Not part of this prototype');return}
+ if(d.ptab){D.ptab=d.ptab;render();return}
+ if(d.psize){D.psize=d.psize;render();return}
+ if(d.day){D.day=d.day;render();return}
+ if(d.slot){D.slot=d.slot;render();return}
+ if(d.gdate){D.gDate=d.gdate;render();return}
+ if(d.gany){D.gAny=d.gany==='1';render();return}
+ if(d.gpriv){D.gPriv=!D.gPriv;render();return}
+ if(d.gamt){D.gAmt=+d.gamt;render();return}
+ if(d.req){D.cur=d.req;go('h-req');return}
+ if(d.add){const x=d.add;if(x==='Detergent'){go('h-dup');return}if(D.list.some(l=>l[0]===x)){toast('Already on the list');return}D.list.push([x,'You',false]);render();toast(x+' added to the shared list');return}
+ const a=d.act;
+ if(a==='pcart'||a==='pnot'){D.choice=a==='pcart'?'cart':'not';go('p-decided');return}
+ if(a==='book'){if(!D.day||!D.slot){err('berr');return}go('c-booked');return}
+ if(a==='tocare'){S.hist=['menu','c-orders','c-products'];S.screen='c-wm';render();return}
+ if(a==='dupno'){back();toast('Not added. Riya’s order covers it');return}
+ if(a==='dupyes'){D.list.push(['Detergent','You',false]);back();toast('Detergent added to the shared list');return}
+ if(a==='approve'||a==='decline'){const k=D.cur;D.req[k]=a==='approve'?'ok':'no';if(a==='approve'&&k==='arjun')D.spent+=4999;back();toast(a==='approve'?'Approved and ordered on the shared card':'Declined. '+(k==='arjun'?'Arjun':'Mom')+' has been told');return}
+ if(a==='gcreate'){if(!D.gName.trim()){err('gerr');return}go('g-share');return}
+ if(a==='gcopy'){try{navigator.clipboard.writeText('https://amzn.in/g/gift').catch(()=>{})}catch(x){}toast('Link copied');return}
+ if(a==='gpay'){go('g-paid');return}
+});
+(function(){const h=location.hash.replace('#','');if(FLOWS[h])openFlow(h);else render()})();
+</script>
+</body>
+</html>
